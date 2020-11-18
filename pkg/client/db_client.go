@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-memdb"
 	"log"
 	"net/http"
+	"sync/atomic"
 )
 
 type EventResultService interface {
@@ -16,16 +17,19 @@ type EventResultService interface {
 
 func NewEventResultSrvice() EventResultService {
 	memDb, err := schema.NewDBClient().GetDBClient()
+	var count uint64 = 0
 	if err != nil {
 		panic(err)
 	}
 	return &eventResultRetriver{
-		db: memDb,
+		db:      memDb,
+		counter: &count,
 	}
 }
 
 type eventResultRetriver struct {
-	db *memdb.MemDB
+	db      *memdb.MemDB
+	counter *uint64
 }
 
 func (e eventResultRetriver) GetEventResult(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +47,10 @@ func (e eventResultRetriver) GetEventResult(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		http.Error(w, "DB Error", http.StatusInternalServerError)
 	}
+	if len(res) == 0 {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	jsonStr, err := json.Marshal(res)
 	if err != nil {
@@ -55,11 +63,15 @@ func (e eventResultRetriver) GetEventResult(w http.ResponseWriter, r *http.Reque
 
 func (e eventResultRetriver) PostEventResult(w http.ResponseWriter, r *http.Request) {
 	eventResult := &schema.EventResult{}
+	atomic.AddUint64(e.counter, 1)
+
 	log.Print("Write Request Received")
 	err := json.NewDecoder(r.Body).Decode(eventResult)
 	if err != nil {
 		http.Error(w, "Bad Request Body", http.StatusBadRequest)
 	}
+	eventResult.ID = int(*e.counter)
+
 	err = e.writeEventResultToDB(eventResult)
 	if err != nil {
 		http.Error(w, "DB Error", http.StatusInternalServerError)
