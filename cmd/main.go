@@ -1,50 +1,27 @@
 package main
 
 import (
-	"context"
-	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/anishj0shi/inmemorydb-service/pkg/client"
 	"log"
 	"net/http"
 )
 
+var eventHandler = client.NewEventResultSrvice()
+
 func main() {
-	protocol, err := cloudevents.NewHTTP()
+	http.HandleFunc("/eventResult", HandleAddResult)
 
-	if err != nil {
-		log.Fatalf("failed to create handler: %s", err.Error())
-	}
-	h, err := cloudevents.NewHTTPReceiveHandler(context.Background(), protocol, receive)
-	if err != nil {
-		log.Fatalf("failed to create handler: %s", err.Error())
-	}
-
-	log.Printf("will listen on :8081\n")
-	go func() {
-		if err := http.ListenAndServe(":8081", h); err != nil {
-			log.Fatalf("unable to start http server, %s", err)
-		}
-	}()
-
-	log.Print("Starting Result Service")
-
-	mux := http.NewServeMux()
-	mux.Handle("/", middleware())
-	if err := http.ListenAndServe(":8082", mux); err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatalf("unable to start http server for Result Service, %s", err)
 	}
 }
 
-func receive(event cloudevents.Event) {
-	log.Printf("%s", event)
-}
+func HandleAddResult(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		eventHandler.GetEventResult(w, req)
+	case http.MethodPost:
+		eventHandler.PostEventResult(w, req)
 
-func middleware() http.Handler {
-	return &handler{}
-}
-
-type handler struct{}
-
-func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	w.Write([]byte("Get was triggered"))
-
+	}
 }

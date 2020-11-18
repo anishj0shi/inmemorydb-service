@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	schema_name = "event-results"
+	TABLE_NAME = "event-results"
 )
 
 type DBClient interface {
@@ -29,8 +29,8 @@ func (d db) GetDBClient() (*memdb.MemDB, error) {
 func getDBSchema() *memdb.DBSchema {
 	return &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
-			schema_name: {
-				Name: schema_name,
+			TABLE_NAME: {
+				Name: TABLE_NAME,
 				Indexes: map[string]*memdb.IndexSchema{
 					"id": {
 						Name:   "id",
