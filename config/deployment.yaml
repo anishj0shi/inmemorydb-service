@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inmemorydb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: inmemorydb
+  template:
+    metadata:
+      labels:
+        app: inmemorydb
+    spec:
+      containers:
+      - name: inmemorydb
+        image: ko://github.com/anishj0shi/inmemorydb-service/cmd
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080

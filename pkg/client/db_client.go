@@ -55,7 +55,7 @@ func (e eventResultRetriver) GetEventResult(w http.ResponseWriter, r *http.Reque
 
 func (e eventResultRetriver) PostEventResult(w http.ResponseWriter, r *http.Request) {
 	eventResult := &schema.EventResult{}
-
+	log.Print("Write Request Received")
 	err := json.NewDecoder(r.Body).Decode(eventResult)
 	if err != nil {
 		http.Error(w, "Bad Request Body", http.StatusBadRequest)
@@ -71,6 +71,7 @@ func (e eventResultRetriver) writeEventResultToDB(eventResult *schema.EventResul
 	txn := e.db.Txn(true)
 	err := txn.Insert(schema.TABLE_NAME, eventResult)
 	if err != nil {
+		log.Print(err)
 		return err
 	}
 	txn.Commit()

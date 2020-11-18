@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: inmemorydb-service
+spec:
+  type: ClusterIP
+  selector:
+    app: inmemorydb
+  ports:
+    - port: 8080
+      targetPort: 8080
