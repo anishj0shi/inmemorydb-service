@@ -9,6 +9,7 @@ import (
 var eventHandler = client.NewEventResultSrvice()
 
 func main() {
+	log.Println("Starting InMemoryDB Service...")
 	http.HandleFunc("/eventResult", HandleAddResult)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {

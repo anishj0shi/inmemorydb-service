@@ -71,6 +71,7 @@ func (e eventResultRetriver) PostEventResult(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Bad Request Body", http.StatusBadRequest)
 	}
 	eventResult.ID = int(*e.counter)
+	log.Printf("Received request %v", eventResult)
 
 	err = e.writeEventResultToDB(eventResult)
 	if err != nil {

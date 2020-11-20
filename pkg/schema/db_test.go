@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"fmt"
 	"testing"
+	"time"
 )
 
 func TestInMemDBOperations(t *testing.T) {
@@ -78,3 +80,9 @@ func TestInMemDBOperations(t *testing.T) {
 
 }
 
+func TestTime(t *testing.T) {
+	receivedTime := time.Unix(0, 1605892478687667000)
+	currentTime := time.Now().UTC()
+
+	fmt.Println(currentTime.Sub(receivedTime).Seconds())
+}
